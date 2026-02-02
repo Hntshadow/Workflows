@@ -1,0 +1,676 @@
+{
+  "name": "JOB SEARCH 1.0 50/50",
+  "nodes": [
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "hour": 9
+            }
+          ]
+        }
+      },
+      "name": "Daily Trigger",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        400,
+        -272
+      ],
+      "id": "b041bd8b-bcb3-460a-ac89-2ba5f57ef8af"
+    },
+    {
+      "parameters": {
+        "url": "https://www.arbeitnow.com/api/job-board-api",
+        "options": {}
+      },
+      "name": "Arbeitnow API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        608,
+        -272
+      ],
+      "id": "890791dd-9bf8-4cc2-a686-29f64c852e5f"
+    },
+    {
+      "parameters": {
+        "functionCode": "return items[0].json.data.map(job => ({\n  json: {\n    title: job.title,\n    company: job.company_name,\n    location: job.location,\n    remote: job.remote,\n    tags: job.tags ? job.tags.join(', ') : '',\n    link: job.url\n  }\n}));"
+      },
+      "name": "Extract Jobs",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        800,
+        -272
+      ],
+      "id": "ee78bf59-7d78-4547-8559-8efa320069f2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.remote }}",
+              "operation": "contains",
+              "value2": "=true"
+            }
+          ]
+        }
+      },
+      "name": "Filter Remote Dev Jobs",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        -272
+      ],
+      "id": "494b946b-fd41-43f3-b0da-7c5ea61c2459"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1ctjREkzWLGCqmASRNyUNAieOq748I4kLT1JcF5jQUVU",
+          "mode": "list",
+          "cachedResultName": "arbetitnow jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ctjREkzWLGCqmASRNyUNAieOq748I4kLT1JcF5jQUVU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1313101885,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ctjREkzWLGCqmASRNyUNAieOq748I4kLT1JcF5jQUVU/edit#gid=1313101885"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Link": "={{ $json.link }}",
+            "Title": "= {{ $json.title }}",
+            "Company": "={{ $json.company }}",
+            "Location": "={{ $json.location }}",
+            "Remote": "={{ $json.remote }}",
+            "Tags": "={{ $json.tags }}",
+            "Date": "= {{ new Date().toLocaleString('en-IN') }}",
+            "Job Type": "={{ $json.remote ? 'Remote' : 'On-site / Hybrid' }}"
+          },
+          "matchingColumns": [
+            "Link"
+          ],
+          "schema": [
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Remote",
+              "displayName": "Remote",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tags",
+              "displayName": "Tags",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Link",
+              "displayName": "Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job Type",
+              "displayName": "Job Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Country",
+              "displayName": "Country",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1472,
+        -160
+      ],
+      "id": "01d256b8-1a1b-46b7-a8cf-8a3e5e1763dd",
+      "name": "Append or update row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "JYf6MszVr6V1Jhwz",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1ctjREkzWLGCqmASRNyUNAieOq748I4kLT1JcF5jQUVU",
+          "mode": "list",
+          "cachedResultName": "arbetitnow jobs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ctjREkzWLGCqmASRNyUNAieOq748I4kLT1JcF5jQUVU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ctjREkzWLGCqmASRNyUNAieOq748I4kLT1JcF5jQUVU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Title": "={{ $json.title }}",
+            "Company": "={{ $json.company }}",
+            "Location": "={{ $json.location }}",
+            "Remote": "= {{ $json.remote }}",
+            "Tags": "= {{ $json.tags }}",
+            "Link": "={{ $json.link }}",
+            "Date": "={{ new Date().toLocaleString('en-IN') }}",
+            "Job Type": "={{ $json.remote ? 'Remote' : 'On-site / Hybrid' }}"
+          },
+          "matchingColumns": [
+            "Link"
+          ],
+          "schema": [
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Remote",
+              "displayName": "Remote",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tags",
+              "displayName": "Tags",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Link",
+              "displayName": "Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job Type",
+              "displayName": "Job Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Country",
+              "displayName": "Country",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1472,
+        -400
+      ],
+      "id": "d52cb0bf-f335-4d30-a974-b545f8f46b8c",
+      "name": "Append or update row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "JYf6MszVr6V1Jhwz",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "appXN589E1gOjEtrs",
+          "mode": "list",
+          "cachedResultName": "workspace",
+          "cachedResultUrl": "https://airtable.com/appXN589E1gOjEtrs"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl3GtqAlkoSuRKXQ",
+          "mode": "list",
+          "cachedResultName": "Remote",
+          "cachedResultUrl": "https://airtable.com/appXN589E1gOjEtrs/tbl3GtqAlkoSuRKXQ"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Title": "={{ $json.title }}",
+            "Tags": "={{ $json.tags }}",
+            "Link": "={{ $json.link }}",
+            "Date": "={{ new Date().toLocaleString('en-IN') }}",
+            "Company": "={{ $json.company }}",
+            "Location": "={{ $json.location }}",
+            "Job Type": "={{ $json.remote ? 'Remote' : 'On-site / Hybrid' }}",
+            "Remote": "="
+          },
+          "matchingColumns": [
+            "Title"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Paymentology",
+                  "value": "Paymentology"
+                },
+                {
+                  "name": "HOPn",
+                  "value": "HOPn"
+                },
+                {
+                  "name": "inutec gmbh",
+                  "value": "inutec gmbh"
+                },
+                {
+                  "name": "Automat-it",
+                  "value": "Automat-it"
+                },
+                {
+                  "name": "Auralis Group GmbH",
+                  "value": "Auralis Group GmbH"
+                },
+                {
+                  "name": "Buchhaltungsbutler",
+                  "value": "Buchhaltungsbutler"
+                },
+                {
+                  "name": "Pertemps ERP",
+                  "value": "Pertemps ERP"
+                },
+                {
+                  "name": "",
+                  "value": ""
+                },
+                {
+                  "name": "AirTaxi Express AG",
+                  "value": "AirTaxi Express AG"
+                },
+                {
+                  "name": "EASI Control GmbH",
+                  "value": "EASI Control GmbH"
+                },
+                {
+                  "name": "FourEnergy GmbH",
+                  "value": "FourEnergy GmbH"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Berlin",
+                  "value": "Berlin"
+                },
+                {
+                  "name": "Munich",
+                  "value": "Munich"
+                },
+                {
+                  "name": "Schladen",
+                  "value": "Schladen"
+                },
+                {
+                  "name": "Grünwald",
+                  "value": "Grünwald"
+                },
+                {
+                  "name": "Frankfurt",
+                  "value": "Frankfurt"
+                },
+                {
+                  "name": "",
+                  "value": ""
+                },
+                {
+                  "name": "Cologne",
+                  "value": "Cologne"
+                },
+                {
+                  "name": "Hamm",
+                  "value": "Hamm"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Remote",
+              "displayName": "Remote",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": " true",
+                  "value": " true"
+                },
+                {
+                  "name": "",
+                  "value": ""
+                },
+                {
+                  "name": " ",
+                  "value": " "
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tags",
+              "displayName": "Tags",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Link",
+              "displayName": "Link",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Job Type",
+              "displayName": "Job Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Remote",
+                  "value": "Remote"
+                },
+                {
+                  "name": "",
+                  "value": ""
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1072,
+        -672
+      ],
+      "id": "e3d755ed-ca54-4ed9-86bd-bcbc632c42b9",
+      "name": "Create or update a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "kJ4hzSIbrmmeboCR",
+          "name": "remote"
+        }
+      },
+      "disabled": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Daily Trigger": {
+      "main": [
+        [
+          {
+            "node": "Arbeitnow API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Arbeitnow API": {
+      "main": [
+        [
+          {
+            "node": "Extract Jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Jobs": {
+      "main": [
+        [
+          {
+            "node": "Filter Remote Dev Jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Remote Dev Jobs": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append or update row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create or update a record": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f3563d80-06a6-4b3f-ae33-233d5d0e2833",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "549f30e1677c70178d2c9102d17023d8000935d0623e005ee5256312ac7ef26c"
+  },
+  "id": "CRDdmYM8YMd8IhM2",
+  "tags": []
+}
